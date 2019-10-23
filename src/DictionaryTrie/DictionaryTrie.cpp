@@ -5,45 +5,49 @@
  */
 #include "DictionaryTrie.hpp"
 #include <iostream>
+#include <stack>
 
 /* TODO */
 DictionaryTrie::DictionaryTrie() { root = nullptr; }
 
 /* TODO */
 bool DictionaryTrie::insert(string word, unsigned int freq) {
-    if (find(word)) return false;
+    if (find(word) || word.empty()) return false;
     TSTNode* node = nullptr;
     // if root is null
     if (!root) {
-        root = new TSTNode(word[0], freq);
+        root = new TSTNode(word[0]);
         TSTNode* curr = root;
         for (int i = 1; i < word.size(); i++) {
-            node = new TSTNode(word[i], freq);
+            node = new TSTNode(word[i]);
             curr->mChild = node;
             curr = curr->mChild;
         }
+        // the end node
+        curr->fq = freq;
         curr->isEnd = true;
     } else {
         TSTNode* curr = root;
         for (int i = 0; i < word.size(); i++) {
             if (!curr->mChild && i > 0) {
-                curr->mChild = new TSTNode(word[i], freq);
+                curr->mChild = new TSTNode(word[i]);
                 curr = curr->mChild;
             }
             if (word[i] == curr->data) {
                 curr = curr->mChild;
             } else if (word[i] < curr->data) {
                 if (!curr->lChild) {
-                    curr->lChild = new TSTNode(word[i], freq);
+                    curr->lChild = new TSTNode(word[i]);
                 }
                 curr = curr->lChild;
             } else {
                 if (!curr->rChild) {
-                    curr->rChild = new TSTNode(word[i], freq);
+                    curr->rChild = new TSTNode(word[i]);
                 }
                 curr = curr->rChild;
             }
         }
+        curr->fq = freq;
         curr->isEnd = true;
     }
 }
@@ -54,7 +58,6 @@ bool DictionaryTrie::find(string word) const {
     TSTNode* curr = root;
     // find the head of the word
     int i = 0;
-    bool found = false;
     while (true) {
         if (word[i] == curr->data && i < word.size() - 1) {
             curr = curr->mChild;
@@ -75,9 +78,40 @@ bool DictionaryTrie::find(string word) const {
     }
 }
 
-/* TODO */
+/** TODO
+ * DFS the tree, first we find the last char of the prefix
+ * then we DFS the sub-tree of that node
+ * push root, string word = prefix
+ * while stack is not empty
+ *  pop out, if not root, word = prefix + char
+ *      check whether the char been poped out is the end node, if it is,
+ * result.push(word)
+ *
+ */
 vector<string> DictionaryTrie::predictCompletions(string prefix,
                                                   unsigned int numCompletions) {
+    vector<Word> result;
+    TSTNode* curr = root;
+    // find the last char of the prefix
+    int i = 0;
+    while (true) {
+        if (prefix[i] == curr->data) {
+            if (i == prefix.size() - 1) break;
+            curr = curr->mChild;
+            i++;
+        } else if (prefix[i] < curr->data) {
+            curr = curr->lChild;
+        } else {
+            curr = curr->rChild;
+        }
+    }
+
+    // Performing an exhaustive search
+    stack<char> stk;
+    string suffix;
+    stk.push(curr->data);
+    while (!stk.empty()) {
+    }
     return {};
 }
 
@@ -88,4 +122,14 @@ std::vector<string> DictionaryTrie::predictUnderscores(
 }
 
 /* TODO */
-DictionaryTrie::~DictionaryTrie() {}
+DictionaryTrie::~DictionaryTrie() { deleteAll(root); }
+
+/** Helper method for ~BST() */
+void DictionaryTrie::deleteAll(TSTNode* n) {
+    if (n) {
+        deleteAll(n->lChild);
+        deleteAll(n->mChild);
+        deleteAll(n->rChild);
+        delete n;
+    }
+}

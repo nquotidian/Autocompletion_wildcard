@@ -12,6 +12,16 @@
 
 using namespace std;
 
+class Word {
+  public:
+    string word;
+    int fq;
+    Word(string w, int f) {
+        word = w;
+        fq = f;
+    }
+};
+
 /**
  * The class for a Trinary tree node.
  */
@@ -32,6 +42,15 @@ class TSTNode {
         isEnd = false;
         fq = q;
     }
+
+    TSTNode(char d) {
+        lChild = nullptr;
+        rChild = nullptr;
+        mChild = nullptr;
+        data = d;
+        isEnd = false;
+        fq = 0;
+    }
 };
 
 /**
@@ -42,6 +61,9 @@ class DictionaryTrie {
   private:
     // TODO: add private members and helper methods here
     TSTNode* root;
+
+    /* Helper method for ~DictionaryTrie() */
+    void deleteAll(TSTNode* n);
 
   public:
     /* TODO: add function header */
@@ -61,8 +83,13 @@ class DictionaryTrie {
     vector<string> predictUnderscores(string pattern,
                                       unsigned int numCompletions);
 
-    /* TODO: add function header */
+    /* Destructor */
     ~DictionaryTrie();
+};
+
+/** The comparator used in sorting words based on frequency */
+struct CompareFreq {
+    bool operator()(const Word& w1, const Word& w2) { return w1.fq < w2.fq; }
 };
 
 #endif  // DICTIONARY_TRIE_HPP
