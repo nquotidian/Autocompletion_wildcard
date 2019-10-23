@@ -89,7 +89,13 @@ class DictionaryTrie {
 
 /** The comparator used in sorting words based on frequency */
 struct CompareFreq {
-    bool operator()(const Word& w1, const Word& w2) { return w1.fq < w2.fq; }
-};
+    bool operator()(const Word& w1, const Word& w2) {
+        if (w1.fq != w2.fq) {
+            return w1.fq > w2.fq;
+        } else {
+            return w1.word < w2.word;
+        }
+    }
+} compareObj;
 
 #endif  // DICTIONARY_TRIE_HPP

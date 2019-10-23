@@ -4,6 +4,7 @@
  * Author:
  */
 #include "DictionaryTrie.hpp"
+#include <algorithm>
 #include <iostream>
 #include <stack>
 
@@ -29,22 +30,24 @@ bool DictionaryTrie::insert(string word, unsigned int freq) {
     } else {
         TSTNode* curr = root;
         for (int i = 0; i < word.size(); i++) {
-            if (!curr->mChild && i > 0) {
-                curr->mChild = new TSTNode(word[i]);
-                curr = curr->mChild;
-            }
-            if (word[i] == curr->data) {
-                curr = curr->mChild;
-            } else if (word[i] < curr->data) {
-                if (!curr->lChild) {
-                    curr->lChild = new TSTNode(word[i]);
+            if (!curr) {
+                if (!curr->mChild && i > 0) {
+                    curr->mChild = new TSTNode(word[i]);
+                    curr = curr->mChild;
                 }
-                curr = curr->lChild;
-            } else {
-                if (!curr->rChild) {
-                    curr->rChild = new TSTNode(word[i]);
+                if (word[i] == curr->data) {
+                    curr = curr->mChild;
+                } else if (word[i] < curr->data) {
+                    if (!curr->lChild) {
+                        curr->lChild = new TSTNode(word[i]);
+                    }
+                    curr = curr->lChild;
+                } else {
+                    if (!curr->rChild) {
+                        curr->rChild = new TSTNode(word[i]);
+                    }
+                    curr = curr->rChild;
                 }
-                curr = curr->rChild;
             }
         }
         curr->fq = freq;
@@ -67,13 +70,11 @@ bool DictionaryTrie::find(string word) const {
         } else {
             curr = curr->rChild;
         }
-        // the last char of word
-        if (curr->isEnd) {
-            return true;
-        }
         // Curr is null
         if (!curr) {
             return false;
+        } else if (curr->isEnd) {
+            return true;
         }
     }
 }
@@ -90,13 +91,14 @@ bool DictionaryTrie::find(string word) const {
  */
 vector<string> DictionaryTrie::predictCompletions(string prefix,
                                                   unsigned int numCompletions) {
-    vector<Word> result;
     TSTNode* curr = root;
     // find the last char of the prefix
     int i = 0;
     while (true) {
         if (prefix[i] == curr->data) {
-            if (i == prefix.size() - 1) break;
+            if (i == prefix.size() - 1) {
+                break;
+            }
             curr = curr->mChild;
             i++;
         } else if (prefix[i] < curr->data) {
@@ -105,14 +107,50 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
             curr = curr->rChild;
         }
     }
-
     // Performing an exhaustive search
-    stack<char> stk;
-    string suffix;
-    stk.push(curr->data);
-    while (!stk.empty()) {
+    stack<TSTNode*> stk;
+    vector<Word> result;
+    string str = prefix;
+    TSTNode* ptr_node = nullptr;
+
+    if (curr->isEnd) {
+        result.push_back(Word(prefix, curr->fq));
     }
-    return {};
+    if (!curr->mChild) {
+        stk.push(curr->mChild);
+    }
+    char c;
+    while (!stk.empty()) {
+        ptr_node = stk.top();
+        c = ptr_node->data;
+        str = str + c;
+        cout << "current str........" << str << endl;
+        if (ptr_node->isEnd) {
+            result.push_back(Word(str, ptr_node->fq));
+        }
+        stk.pop();
+        if (!ptr_node->lChild) {
+            stk.push(ptr_node->lChild);
+            // remove the char
+            str = str.erase(str.size() - 1);
+        }
+        if (!ptr_node->mChild) {
+            stk.push(ptr_node->mChild);
+        }
+        if (!ptr_node->rChild) {
+            stk.push(ptr_node->rChild);
+            // remove the char
+            str = str.erase(str.size() - 1);
+        }
+    }
+    // return
+    std::sort(result.begin(), result.end(), compareObj);
+    vector<string> rt_vec;
+    int n = (numCompletions < result.size() ? numCompletions : result.size());
+    for (int j = 0; j < n; j++) {
+        rt_vec.push_back(result[j].word);
+    }
+    return rt_vec;
 }
 
 /* TODO */
