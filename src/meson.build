@@ -1,7 +1,7 @@
 subdir('DictionaryTrie')
 subdir('Util')
 
-# TODO: Define autocomplete_exe to output executable file named 
+# Define autocomplete_exe to output executable file named 
 #       autocomplete.cpp.executable
 
 benchtrie_exe = executable('benchtrie.cpp.executable', 

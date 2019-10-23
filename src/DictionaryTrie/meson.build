@@ -1,4 +1,4 @@
-# TODO: Define dictionary_trie using function library()
+# Define dictionary_trie using function library()
 
 inc = include_directories('.')
 
