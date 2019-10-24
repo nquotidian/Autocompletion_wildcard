@@ -6,10 +6,9 @@
 #include "DictionaryTrie.hpp"
 #include <algorithm>
 #include <iostream>
-#include <stack>
 
 void predictHelper(TSTNode* root, vector<Word>& vec, string prefix);
-
+void traverse(TSTNode* root);
 /* TODO */
 DictionaryTrie::DictionaryTrie() { root = nullptr; }
 
@@ -18,7 +17,7 @@ bool DictionaryTrie::insert(string word, unsigned int freq) {
     if (find(word) || word.empty()) return false;
     TSTNode* node = nullptr;
     // if root is null
-    if (!root) {
+    if (root == nullptr) {
         root = new TSTNode(word[0]);
         TSTNode* curr = root;
         for (unsigned int i = 1; i < word.size(); i++) {
@@ -27,8 +26,8 @@ bool DictionaryTrie::insert(string word, unsigned int freq) {
             curr = node;
         }
         // the end node
-        curr->fq = freq;
         curr->isEnd = true;
+        curr->fq = freq;
         return true;
     } else {
         TSTNode* curr = root;
@@ -38,11 +37,12 @@ bool DictionaryTrie::insert(string word, unsigned int freq) {
                 if (curr->lChild == nullptr) {
                     curr->lChild = new TSTNode(word[i]);
                     curr = curr->lChild;
-                    for (; i < word.size(); i++) {
+                    for (i = i + 1; i < word.size(); i++) {
                         curr->mChild = new TSTNode(word[i]);
                         curr = curr->mChild;
                     }
                     curr->isEnd = true;
+                    curr->fq = freq;
                     return true;
                 } else {
                     curr = curr->lChild;
@@ -52,11 +52,12 @@ bool DictionaryTrie::insert(string word, unsigned int freq) {
                     curr->rChild = new TSTNode(word[i]);
                     curr = curr->rChild;
 
-                    for (; i < word.size(); i++) {
+                    for (i = i + 1; i < word.size(); i++) {
                         curr->mChild = new TSTNode(word[i]);
                         curr = curr->mChild;
                     }
                     curr->isEnd = true;
+                    curr->fq = freq;
                     return true;
                 } else {
                     curr = curr->rChild;
@@ -64,17 +65,19 @@ bool DictionaryTrie::insert(string word, unsigned int freq) {
             } else {
                 if (i == word.size() - 1) {
                     curr->isEnd = true;
+                    curr->fq = freq;
                     return true;
                 } else {
                     if (curr->mChild != nullptr) {
                         curr = curr->mChild;
                         i++;
                     } else {
-                        for (; i < word.size(); i++) {
+                        for (i = i + 1; i < word.size(); i++) {
                             curr->mChild = new TSTNode(word[i]);
                             curr = curr->mChild;
                         }
                         curr->isEnd = true;
+                        curr->fq = freq;
                         return true;
                     }
                 }
@@ -104,8 +107,8 @@ bool DictionaryTrie::find(string word) const {
             }
         } else {
             // letter is the last letter
-            if (i == word.size() - 1) {
-                return curr->isEnd ? true : false;
+            if (i == word.size() - 1 && curr->isEnd) {
+                return true;
             } else {
                 if (curr->mChild == nullptr) {
                     return false;
@@ -132,6 +135,7 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
                                                   unsigned int numCompletions) {
     TSTNode* curr = root;
     vector<string> rt_vec;
+
     // find the last char of the prefix
     int i = 0;
     while (true) {
@@ -162,7 +166,6 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
         }
     }
     // Performing an exhaustive search
-    stack<TSTNode*> stk;
     vector<Word> result;
     string str = prefix;
 
@@ -212,14 +215,30 @@ void predictHelper(TSTNode* root, vector<Word>& vec, string prefix) {
     if (root->isEnd) {
         string str = prefix + root->data;
         vec.push_back(Word(str, root->fq));
-        return;
     }
-    // Leaf node
-    if (root->lChild == nullptr && root->rChild == nullptr &&
-        root->rChild == nullptr)
-        return;
-    if (root->lChild != nullptr) predictHelper(root->lChild, vec, prefix);
-    if (root->mChild != nullptr)
+    if (root->lChild != nullptr) {
+        predictHelper(root->lChild, vec, prefix);
+    }
+    if (root->mChild != nullptr) {
+        string lala = prefix + root->data;
         predictHelper(root->mChild, vec, (prefix + root->data));
-    if (root->rChild != nullptr) predictHelper(root->rChild, vec, prefix);
+    }
+    if (root->rChild != nullptr) {
+        predictHelper(root->rChild, vec, prefix);
+    }
+}
+
+void traverse(TSTNode* root) {
+    if (root->lChild != nullptr) {
+        cout << "------" << root->lChild->data;
+        traverse(root->lChild);
+    }
+    if (root->mChild != nullptr) {
+        cout << "-----" << root->mChild->data;
+        traverse(root->mChild);
+    }
+    if (root->rChild != nullptr) {
+        cout << "------" << root->rChild->data << endl;
+        traverse(root->rChild);
+    }
 }
