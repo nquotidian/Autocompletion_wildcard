@@ -1,7 +1,7 @@
 /**
- * TODO: File Header
+ * File Header
  *
- * Author:
+ * Author: Qing Niu, the implementino of the header file DictionaryTrie.hpp
  */
 #include "DictionaryTrie.hpp"
 #include <algorithm>
@@ -9,10 +9,15 @@
 
 void predictHelper(TSTNode* root, vector<Word>& vec, string prefix);
 void traverse(TSTNode* root);
-/* TODO */
+/* Initialize DictionaryTrie */
 DictionaryTrie::DictionaryTrie() { root = nullptr; }
 
-/* TODO */
+/* Insert node to dictionary*
+ * Parameter: word - the word in the TST node
+ *            freq - the frequency of the word
+ * Retur value: true - insert successfully
+ *              false - failed on inserting
+ * */
 bool DictionaryTrie::insert(string word, unsigned int freq) {
     if (find(word) || word.empty()) return false;
     TSTNode* node = nullptr;
@@ -86,7 +91,11 @@ bool DictionaryTrie::insert(string word, unsigned int freq) {
     }
 }
 
-/* TODO */
+/* Find a word in the dictionary
+ * Parameter: word - the word to find
+ * Retur value: true - found successfully
+ *              false - not found
+ * */
 bool DictionaryTrie::find(string word) const {
     if (!root) return false;
     TSTNode* curr = root;
@@ -121,15 +130,13 @@ bool DictionaryTrie::find(string word) const {
     }
 }
 
-/** TODO
- * DFS the tree, first we find the last char of the prefix
- * then we DFS the sub-tree of that node
- * push root, string word = prefix
- * while stack is not empty
- *  pop out, if not root, word = prefix + char
- *      check whether the char been poped out is the end node, if it is,
- * result.push(word)
- *
+/* Autocomplete function a word
+ * Parameter: prfix - the prefix of the autocompletion
+ *            numCompletions - the number of words on the vector
+ *                             if bigger than the size of vector,
+ *                              return the size of the vector
+ * Retur value: vector<string> - the results of the autocompletion
+ *              on descending order of frequency of each word;
  */
 vector<string> DictionaryTrie::predictCompletions(string prefix,
                                                   unsigned int numCompletions) {
@@ -195,7 +202,7 @@ std::vector<string> DictionaryTrie::predictUnderscores(
     return {};
 }
 
-/* TODO */
+/* Destructor of DictionaryTrie */
 DictionaryTrie::~DictionaryTrie() { deleteAll(root); }
 
 /** Helper method for ~BST() */
@@ -208,6 +215,11 @@ void DictionaryTrie::deleteAll(TSTNode* n) {
     }
 }
 
+/* Helper method of autocomplete
+ * Parameter: root - the current node
+ *            vec - the vector to return
+ *            prefix - the prefix of the word
+ */
 void predictHelper(TSTNode* root, vector<Word>& vec, string prefix) {
     if (root == nullptr) {
         return;
@@ -228,7 +240,8 @@ void predictHelper(TSTNode* root, vector<Word>& vec, string prefix) {
     }
 }
 
-void traverse(TSTNode* root) {
+/** For test
+ * void traverse(TSTNode* root) {
     if (root->lChild != nullptr) {
         cout << "------" << root->lChild->data;
         traverse(root->lChild);
@@ -242,3 +255,4 @@ void traverse(TSTNode* root) {
         traverse(root->rChild);
     }
 }
+*/

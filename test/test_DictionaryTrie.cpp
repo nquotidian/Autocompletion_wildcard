@@ -1,7 +1,9 @@
 /**
- * TODO: File HEADER
+ * File HEADER
+ * The test cases of Dictionary trie, including the
+ * insert, find and autocomplete tests.
  *
- * Author:
+ * Author: Qing Niu
  */
 
 #include <algorithm>
@@ -24,4 +26,53 @@ TEST(DictTrieTests, EMPTY_TEST) {
     ASSERT_EQ(dict.find("abrakadabra"), false);
 }
 
-/* TODO */
+/* Build the following Dictionary based on TST node */
+class DictTest : public ::testing::Test {
+  protected:
+    DictionaryTrie dict;
+
+  public:
+    DictTest() {
+        // initialization code here
+        dict.insert("jog", 5);
+        dict.insert("a", 1);
+        dict.insert("abc", 2);
+        dict.insert("ass", 3);
+        dict.insert("cse", 4);
+        dict.insert("mike", 6);
+        dict.insert("char", 3);
+        dict.insert("david", 2);
+        dict.insert("ant", 4);
+        dict.insert("and", 4);
+    }
+};
+
+TEST_F(DictTest, FIND_TEST) {
+    // assert that the word found
+    ASSERT_TRUE(dict.find("ant"));
+}
+
+TEST_F(DictTest, NOT_FOUND_TEST) {
+    // assert that the word not found
+    ASSERT_FALSE(dict.find("abrak"));
+}
+
+TEST_F(DictTest, PREDICT_TEST) {
+    // assert that the size of vectors are equal
+    // expect that the element of vectors are the same
+    string prefix = "a";
+    vector<string> v1 = dict.predictCompletions(prefix, 6);
+    vector<string> v2{"and", "ant", "ass", "abc", "a"};
+    ASSERT_EQ((unsigned)v1.size(), (unsigned)v2.size());
+    for (unsigned int i = 0; i < v1.size(); i++) {
+        EXPECT_EQ(v1[i], v2[i]);
+    }
+}
+
+TEST_F(DictTest, PREDICT_TEST_2) {
+    // assert that the size of vectors are equal
+    // expect that the element of vectors are the same
+    string prefix = "amg";
+    vector<string> v1 = dict.predictCompletions(prefix, 6);
+    ASSERT_EQ((unsigned)v1.size(), 0);
+}
