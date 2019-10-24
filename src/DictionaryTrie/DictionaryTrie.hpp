@@ -1,5 +1,5 @@
 /**
- * TODO: File Header
+ * File Header
  *
  * Author: Qing Niu
  */
@@ -59,23 +59,23 @@ class TSTNode {
  */
 class DictionaryTrie {
   private:
-    // TODO: add private members and helper methods here
+    // add private members and helper methods here
     TSTNode* root;
 
     /* Helper method for ~DictionaryTrie() */
     void deleteAll(TSTNode* n);
 
   public:
-    /* TODO: add function header */
+    /* Constructor */
     DictionaryTrie();
 
-    /* TODO: add function header */
+    /* Insert a word to a dictionary trie */
     bool insert(string word, unsigned int freq);
 
-    /* TODO: add function header */
+    /* Find out whether the word is in the dictionary */
     bool find(string word) const;
 
-    /* TODO: add function header */
+    /* Autocompletion */
     vector<string> predictCompletions(string prefix,
                                       unsigned int numCompletions);
 

@@ -7,8 +7,10 @@
 #include <algorithm>
 #include <iostream>
 
+// Helper methods
 void predictHelper(TSTNode* root, vector<Word>& vec, string prefix);
 void traverse(TSTNode* root);
+
 /* Initialize DictionaryTrie */
 DictionaryTrie::DictionaryTrie() { root = nullptr; }
 
