@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
 #include "DictionaryTrie.hpp"
 #include "util.hpp"
@@ -74,7 +75,11 @@ int main(int argc, char** argv) {
         cin >> numberOfCompletions;
 
         // TODO
-
+        vector<string> result =
+            dt->predictCompletions(word, numberOfCompletions);
+        for (auto it = result.begin(); it != result.end(); it++) {
+            cout << *it << endl;
+        }
         cout << "Continue? (y/n)" << endl;
         cin >> cont;
         cin.ignore();
