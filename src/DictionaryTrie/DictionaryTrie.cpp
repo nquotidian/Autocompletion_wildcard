@@ -101,35 +101,14 @@ bool DictionaryTrie::insert(string word, unsigned int freq) {
  * */
 bool DictionaryTrie::find(string word) const {
     if (!root) return false;
-    TSTNode* curr = root;
+    TSTNode* curr = find_last_char_node(word);
     // find the word
-    unsigned int i = 0;
-    while (true) {
-        if (word[i] < curr->data) {
-            if (curr->lChild == nullptr) {
-                return false;
-            } else {
-                curr = curr->lChild;
-            }
-        } else if (word[i] > curr->data) {
-            if (curr->rChild == nullptr) {
-                return false;
-            } else {
-                curr = curr->rChild;
-            }
-        } else {
-            // letter is the last letter
-            if (i == word.size() - 1 && curr->isEnd) {
-                return true;
-            } else {
-                if (curr->mChild == nullptr) {
-                    return false;
-                } else {
-                    curr = curr->mChild;
-                    i++;
-                }
-            }
-        }
+    if (curr == nullptr) {
+        return false;
+    } else if (curr->isEnd) {
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -188,7 +167,7 @@ std::vector<string> DictionaryTrie::predictUnderscores(
 }
 
 /* Find the last char node of prefix or word */
-TSTNode* DictionaryTrie::find_last_char_node(string prefix) {
+TSTNode* DictionaryTrie::find_last_char_node(string prefix) const {
     TSTNode* curr = root;
     unsigned int i = 0;
     while (true) {
