@@ -159,14 +159,15 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
     if (curr->isEnd) {
         que.push((Word(prefix, curr->fq)));
     }
-    // If node has no middle child, return
+    // If node has no middle child, return directly
     if (curr->mChild != nullptr) {
         curr = curr->mChild;
     } else {
+        rt_vec.push_back(prefix);
         return rt_vec;
     }
     predictHelper(curr, prefix, que);
-    int n = ((que.size() < numCompletions) ? que.size() : numCompletions);
+    int n = ((que.size() <= numCompletions) ? que.size() : numCompletions);
     // Get all the first n words in the queue
     string w;
     for (int i = 0; i < n; i++) {
