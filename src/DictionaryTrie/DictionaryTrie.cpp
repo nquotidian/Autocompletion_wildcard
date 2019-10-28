@@ -9,7 +9,8 @@
 
 // Helper methods
 void predictHelper(TSTNode* root, string prefix, my_pri_queue& p_que);
-void traverse(TSTNode* root);
+// Traverse method for debug
+// void traverse(TSTNode* root);
 
 /* Initialize DictionaryTrie */
 DictionaryTrie::DictionaryTrie() { root = nullptr; }
@@ -163,7 +164,9 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
     if (curr->mChild != nullptr) {
         curr = curr->mChild;
     } else {
-        rt_vec.push_back(prefix);
+        if (numCompletions > 0) {
+            rt_vec.push_back(prefix);
+        }
         return rt_vec;
     }
     predictHelper(curr, prefix, que);
