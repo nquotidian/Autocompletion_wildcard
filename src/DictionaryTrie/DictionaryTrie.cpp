@@ -8,7 +8,7 @@
 #include <iostream>
 
 // Helper methods
-void predictHelper(TSTNode* root, vector<Word>& vec, string prefix);
+void predictHelper(TSTNode* root, string prefix, my_pri_queue& p_que);
 void traverse(TSTNode* root);
 
 /* Initialize DictionaryTrie */
@@ -102,7 +102,7 @@ bool DictionaryTrie::find(string word) const {
     if (!root) return false;
     TSTNode* curr = root;
     // find the word
-    int i = 0;
+    unsigned int i = 0;
     while (true) {
         if (word[i] < curr->data) {
             if (curr->lChild == nullptr) {
@@ -142,6 +142,7 @@ bool DictionaryTrie::find(string word) const {
  */
 vector<string> DictionaryTrie::predictCompletions(string prefix,
                                                   unsigned int numCompletions) {
+    // The result vector to return
     vector<string> rt_vec;
     // find the last char of the prefix
     TSTNode* curr = find_last_char_node(prefix);
@@ -152,10 +153,11 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
 
     // Performing an exhaustive search
     vector<Word> result;
+    my_pri_queue que;
 
     // if prefix is also a word
     if (curr->isEnd) {
-        result.push_back(Word(prefix, curr->fq));
+        que.push((Word(prefix, curr->fq)));
     }
     // If node has no middle child, return
     if (curr->mChild != nullptr) {
@@ -163,12 +165,14 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
     } else {
         return rt_vec;
     }
-    predictHelper(curr, result, prefix);
-
-    std::sort(result.begin(), result.end(), compareObj);
-    int n = ((result.size() < numCompletions) ? result.size() : numCompletions);
-    for (int j = 0; j < n; j++) {
-        rt_vec.push_back(result[j].word);
+    predictHelper(curr, prefix, que);
+    int n = ((que.size() < numCompletions) ? que.size() : numCompletions);
+    // Get all the first n words in the queue
+    string w;
+    for (int i = 0; i < n; i++) {
+        w = que.top().word;
+        que.pop();
+        rt_vec.push_back(w);
     }
     return rt_vec;
 }
@@ -182,7 +186,7 @@ std::vector<string> DictionaryTrie::predictUnderscores(
 /* Find the last char node of prefix or word */
 TSTNode* DictionaryTrie::find_last_char_node(string prefix) {
     TSTNode* curr = root;
-    int i = 0;
+    unsigned int i = 0;
     while (true) {
         if (prefix[i] < curr->data) {
             if (curr->lChild == nullptr) {
@@ -231,23 +235,22 @@ void DictionaryTrie::deleteAll(TSTNode* n) {
  *            vec - the vector to return
  *            prefix - the prefix of the word
  */
-void predictHelper(TSTNode* root, vector<Word>& vec, string prefix) {
+void predictHelper(TSTNode* root, string prefix, my_pri_queue& p_que) {
     if (root == nullptr) {
         return;
     }
     if (root->isEnd) {
         string str = prefix + root->data;
-        vec.push_back(Word(str, root->fq));
+        p_que.push(Word(str, root->fq));
     }
     if (root->lChild != nullptr) {
-        predictHelper(root->lChild, vec, prefix);
+        predictHelper(root->lChild, prefix, p_que);
     }
     if (root->mChild != nullptr) {
-        string lala = prefix + root->data;
-        predictHelper(root->mChild, vec, (prefix + root->data));
+        predictHelper(root->mChild, (prefix + root->data), p_que);
     }
     if (root->rChild != nullptr) {
-        predictHelper(root->rChild, vec, prefix);
+        predictHelper(root->rChild, prefix, p_que);
     }
 }
 

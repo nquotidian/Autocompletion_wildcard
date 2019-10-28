@@ -6,12 +6,14 @@
 #ifndef DICTIONARY_TRIE_HPP
 #define DICTIONARY_TRIE_HPP
 
+#include <queue>
 #include <string>
 #include <utility>
 #include <vector>
 
 using namespace std;
 
+// The word node class
 class Word {
   public:
     string word;
@@ -21,6 +23,22 @@ class Word {
         fq = f;
     }
 };
+
+// Compare class for priority queue
+class my_comp {
+  public:
+    // Overload the compare
+    bool operator()(const Word& w1, const Word& w2) {
+        if (w1.fq != w2.fq) {
+            return w1.fq < w2.fq;
+        } else {
+            return w1.word > w2.word;
+        }
+    }
+};
+
+// Define a type of priority queue to store the results of autocompletion
+typedef priority_queue<Word, std::vector<Word>, my_comp> my_pri_queue;
 
 /**
  * The class for a Trinary tree node.
