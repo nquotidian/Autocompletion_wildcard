@@ -76,3 +76,11 @@ TEST_F(DictTest, PREDICT_TEST_2) {
     vector<string> v1 = dict.predictCompletions(prefix, 6);
     ASSERT_EQ((unsigned)v1.size(), 0);
 }
+
+TEST_F(DictTest, PREDICT_TEST_3) {
+    // assert that the size of vectors are equal
+    // expect that the element of vectors are the same
+    string prefix = "a g";
+    vector<string> v1 = dict.predictCompletions(prefix, 6);
+    ASSERT_EQ((unsigned)v1.size(), 0);
+}

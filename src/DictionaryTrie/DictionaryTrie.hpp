@@ -82,6 +82,8 @@ class DictionaryTrie {
     /* TODO: add function header */
     vector<string> predictUnderscores(string pattern,
                                       unsigned int numCompletions);
+    /* Find */
+    TSTNode* find_last_char_node(string prefix);
 
     /* Destructor */
     ~DictionaryTrie();

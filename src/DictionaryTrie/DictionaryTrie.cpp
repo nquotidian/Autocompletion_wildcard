@@ -142,41 +142,16 @@ bool DictionaryTrie::find(string word) const {
  */
 vector<string> DictionaryTrie::predictCompletions(string prefix,
                                                   unsigned int numCompletions) {
-    TSTNode* curr = root;
     vector<string> rt_vec;
-
     // find the last char of the prefix
-    int i = 0;
-    while (true) {
-        if (prefix[i] < curr->data) {
-            if (curr->lChild == nullptr) {
-                return rt_vec;
-            } else {
-                curr = curr->lChild;
-            }
-        } else if (prefix[i] > curr->data) {
-            if (curr->rChild == nullptr) {
-                return rt_vec;
-            } else {
-                curr = curr->rChild;
-            }
-        } else {
-            // letter is the last letter
-            if (i == prefix.size() - 1) {
-                break;
-            } else {
-                if (curr->mChild == nullptr) {
-                    return rt_vec;
-                } else {
-                    curr = curr->mChild;
-                    i++;
-                }
-            }
-        }
+    TSTNode* curr = find_last_char_node(prefix);
+
+    if (curr == nullptr) {
+        return rt_vec;
     }
+
     // Performing an exhaustive search
     vector<Word> result;
-    string str = prefix;
 
     // if prefix is also a word
     if (curr->isEnd) {
@@ -188,7 +163,7 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
     } else {
         return rt_vec;
     }
-    predictHelper(curr, result, str);
+    predictHelper(curr, result, prefix);
 
     std::sort(result.begin(), result.end(), compareObj);
     int n = ((result.size() < numCompletions) ? result.size() : numCompletions);
@@ -202,6 +177,40 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
 std::vector<string> DictionaryTrie::predictUnderscores(
     string pattern, unsigned int numCompletions) {
     return {};
+}
+
+/* Find the last char node of prefix or word */
+TSTNode* DictionaryTrie::find_last_char_node(string prefix) {
+    TSTNode* curr = root;
+    int i = 0;
+    while (true) {
+        if (prefix[i] < curr->data) {
+            if (curr->lChild == nullptr) {
+                return nullptr;
+            } else {
+                curr = curr->lChild;
+            }
+        } else if (prefix[i] > curr->data) {
+            if (curr->rChild == nullptr) {
+                return nullptr;
+            } else {
+                curr = curr->rChild;
+            }
+        } else {
+            // letter is the last letter
+            if (i == prefix.size() - 1) {
+                break;
+            } else {
+                if (curr->mChild == nullptr) {
+                    return nullptr;
+                } else {
+                    curr = curr->mChild;
+                    i++;
+                }
+            }
+        }
+    }
+    return curr;
 }
 
 /* Destructor of DictionaryTrie */
