@@ -75,8 +75,14 @@ int main(int argc, char** argv) {
         cin >> numberOfCompletions;
 
         // TODO
-        vector<string> result =
-            dt->predictCompletions(word, numberOfCompletions);
+        vector<string> result;
+        // If user input the pattern
+        if (word.find("_") != std::string::npos) {
+            result = dt->predictUnderscores(word, numberOfCompletions);
+            // cout << "____" << endl;
+        } else {
+            result = dt->predictCompletions(word, numberOfCompletions);
+        }
         for (auto it = result.begin(); it != result.end(); it++) {
             cout << *it << endl;
         }
