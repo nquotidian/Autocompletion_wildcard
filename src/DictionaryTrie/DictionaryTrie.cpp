@@ -11,6 +11,9 @@
 void predictHelper(TSTNode* root, string prefix, my_pri_queue& r_que, int num);
 // Maintain a priority queue of size numCompletions
 void my_queue_push(Word word, my_pri_queue& r_que, int num);
+// Convert the result form the queue to a vector
+vector<string> convert_queue_to_vector(my_pri_queue& r_que, int num);
+
 // Traverse method for debug
 // void traverse(TSTNode* root);
 
@@ -151,28 +154,8 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
         return rt_vec;
     }
     predictHelper(curr, prefix, asd_que, numCompletions);
-    int n =
-        ((asd_que.size() < numCompletions) ? asd_que.size() : numCompletions);
     // Get all the first n words in the queue
-    string str;
-    my_pri_queue que;
-    int size = asd_que.size();
-    // Convert the ascending priority queue to a normal priority queue
-    for (int i = 0; i < size; i++) {
-        if (!asd_que.empty()) {
-            Word wd = asd_que.top();
-            que.push(wd);
-            asd_que.pop();
-        }
-    }
-    // Get all of the words found
-    for (int j = 0; j < n; j++) {
-        if (!que.empty()) {
-            str = que.top().word;
-            rt_vec.push_back(str);
-            que.pop();
-        }
-    }
+    rt_vec = convert_queue_to_vector(asd_que, numCompletions);
     return rt_vec;
 }
 
@@ -269,6 +252,35 @@ void my_queue_push(Word word, my_pri_queue& r_que, int num) {
             r_que.push(word);
         }
     }
+}
+
+/* Convert the results from queue to a vector
+ * Parameter: r_que - the queue storing the results
+ *            num - num of autocompletions
+ * */
+vector<string> convert_queue_to_vector(my_pri_queue& r_que, int num) {
+    int n = ((r_que.size() < num) ? r_que.size() : num);
+    string str;
+    my_pri_queue que;
+    vector<string> vec;
+    int size = r_que.size();
+    // Convert the ascending priority queue to a normal priority queue
+    for (int i = 0; i < size; i++) {
+        if (!r_que.empty()) {
+            Word wd = r_que.top();
+            que.push(wd);
+            r_que.pop();
+        }
+    }
+    // Get all of the words found
+    for (int j = 0; j < n; j++) {
+        if (!que.empty()) {
+            str = que.top().word;
+            vec.push_back(str);
+            que.pop();
+        }
+    }
+    return vec;
 }
 
 /** For test
