@@ -157,8 +157,9 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
     // Get all the first n words in the queue
     string str;
     my_pri_queue que;
+    int size = asd_que.size();
     // Convert the ascending priority queue to a normal priority queue
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < size; i++) {
         Word wd = asd_que.top();
         que.push(wd);
         asd_que.pop();
