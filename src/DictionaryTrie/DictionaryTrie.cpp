@@ -160,15 +160,19 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
     int size = asd_que.size();
     // Convert the ascending priority queue to a normal priority queue
     for (int i = 0; i < size; i++) {
-        Word wd = asd_que.top();
-        que.push(wd);
-        asd_que.pop();
+        if (!asd_que.empty()) {
+            Word wd = asd_que.top();
+            que.push(wd);
+            asd_que.pop();
+        }
     }
     // Get all of the words found
     for (int j = 0; j < n; j++) {
-        str = que.top().word;
-        rt_vec.push_back(str);
-        que.pop();
+        if (!que.empty()) {
+            str = que.top().word;
+            rt_vec.push_back(str);
+            que.pop();
+        }
     }
     return rt_vec;
 }
@@ -261,8 +265,10 @@ void my_queue_push(Word word, my_pri_queue& r_que, int num) {
     } else if (word.fq > r_que.top().fq ||
                (word.fq == r_que.top().fq && word.word < r_que.top().word)) {
         // The queue is full, kick out the top one with smallest priority
-        r_que.pop();
-        r_que.push(word);
+        if (!r_que.empty()) {
+            r_que.pop();
+            r_que.push(word);
+        }
     }
 }
 
