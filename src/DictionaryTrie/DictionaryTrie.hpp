@@ -26,13 +26,24 @@ class Word {
 
 // Compare class for priority queue
 class my_comp {
+    bool ascending;
+
   public:
+    my_comp(const bool& asd = false) { ascending = asd; }
     // Overload the compare
     bool operator()(const Word& w1, const Word& w2) {
-        if (w1.fq != w2.fq) {
-            return w1.fq < w2.fq;
+        if (ascending) {
+            if (w1.fq != w2.fq) {
+                return w1.fq > w2.fq;
+            } else {
+                return w1.word < w2.word;
+            }
         } else {
-            return w1.word > w2.word;
+            if (w1.fq != w2.fq) {
+                return w1.fq < w2.fq;
+            } else {
+                return w1.word > w2.word;
+            }
         }
     }
 };

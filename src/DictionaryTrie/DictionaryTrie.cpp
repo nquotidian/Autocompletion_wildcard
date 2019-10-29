@@ -8,7 +8,9 @@
 #include <iostream>
 
 // Helper methods
-void predictHelper(TSTNode* root, string prefix, my_pri_queue& p_que);
+void predictHelper(TSTNode* root, string prefix, my_pri_queue& r_que, int num);
+// Maintain a priority queue of size numCompletions
+void my_queue_push(Word word, my_pri_queue& r_que, int num);
 // Traverse method for debug
 // void traverse(TSTNode* root);
 
@@ -133,11 +135,12 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
 
     // Performing an exhaustive search
     vector<Word> result;
-    my_pri_queue que;
-
+    // Create a priority queue with ascending order of priority
+    my_pri_queue asd_que(my_comp(true));
     // if prefix is also a word
     if (curr->isEnd) {
-        que.push((Word(prefix, curr->fq)));
+        Word w = Word(prefix, curr->fq);
+        asd_que.push(w);
     }
     // If node has no middle child, return directly
     if (curr->mChild != nullptr) {
@@ -148,14 +151,23 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
         }
         return rt_vec;
     }
-    predictHelper(curr, prefix, que);
-    int n = ((que.size() <= numCompletions) ? que.size() : numCompletions);
+    predictHelper(curr, prefix, asd_que, numCompletions);
+    int n =
+        ((asd_que.size() < numCompletions) ? asd_que.size() : numCompletions);
     // Get all the first n words in the queue
-    string w;
+    string str;
+    my_pri_queue que;
+    // Convert the ascending priority queue to a normal priority queue
     for (int i = 0; i < n; i++) {
-        w = que.top().word;
+        Word wd = asd_que.top();
+        que.push(wd);
+        asd_que.pop();
+    }
+    // Get all of the words found
+    for (int j = 0; j < n; j++) {
+        str = que.top().word;
+        rt_vec.push_back(str);
         que.pop();
-        rt_vec.push_back(w);
     }
     return rt_vec;
 }
@@ -218,22 +230,38 @@ void DictionaryTrie::deleteAll(TSTNode* n) {
  *            vec - the vector to return
  *            prefix - the prefix of the word
  */
-void predictHelper(TSTNode* root, string prefix, my_pri_queue& p_que) {
+void predictHelper(TSTNode* root, string prefix, my_pri_queue& r_que, int num) {
     if (root == nullptr) {
         return;
     }
     if (root->isEnd) {
         string str = prefix + root->data;
-        p_que.push(Word(str, root->fq));
+        my_queue_push(Word(str, root->fq), r_que, num);
     }
     if (root->lChild != nullptr) {
-        predictHelper(root->lChild, prefix, p_que);
+        predictHelper(root->lChild, prefix, r_que, num);
     }
     if (root->mChild != nullptr) {
-        predictHelper(root->mChild, (prefix + root->data), p_que);
+        predictHelper(root->mChild, (prefix + root->data), r_que, num);
     }
     if (root->rChild != nullptr) {
-        predictHelper(root->rChild, prefix, p_que);
+        predictHelper(root->rChild, prefix, r_que, num);
+    }
+}
+
+/* Maintain a ascending priority queue
+ * Parameter: word - the word in the TST node
+ *            r_que - the ascending priority queue
+ * */
+void my_queue_push(Word word, my_pri_queue& r_que, int num) {
+    // The queue is not full
+    if (r_que.size() < num) {
+        r_que.push(word);
+    } else if (word.fq > r_que.top().fq ||
+               (word.fq == r_que.top().fq && word.word < r_que.top().word)) {
+        // The queue is full, kick out the top one with smallest priority
+        r_que.pop();
+        r_que.push(word);
     }
 }
 
