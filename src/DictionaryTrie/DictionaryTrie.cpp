@@ -139,8 +139,7 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
     my_pri_queue asd_que(my_comp(true));
     // if prefix is also a word
     if (curr->isEnd) {
-        Word w = Word(prefix, curr->fq);
-        asd_que.push(w);
+        asd_que.push(Word(prefix, curr->fq));
     }
     // If node has no middle child, return directly
     if (curr->mChild != nullptr) {
@@ -262,10 +261,10 @@ void my_queue_push(Word word, my_pri_queue& r_que, int num) {
     // The queue is not full
     if (r_que.size() < num) {
         r_que.push(word);
-    } else if (word.fq > r_que.top().fq ||
-               (word.fq == r_que.top().fq && word.word < r_que.top().word)) {
-        // The queue is full, kick out the top one with smallest priority
-        if (!r_que.empty()) {
+    } else if (!r_que.empty()) {
+        if (word.fq > r_que.top().fq ||
+            (word.fq == r_que.top().fq && word.word < r_que.top().word)) {
+            // The queue is full, kick out the top one with smallest priority
             r_que.pop();
             r_que.push(word);
         }
