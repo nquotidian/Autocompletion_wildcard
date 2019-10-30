@@ -186,11 +186,13 @@ std::vector<string> DictionaryTrie::predictUnderscores(
         suff = pattern.substr(pattern.find("_"));
         // cout << "pre   " << pre << endl;
         // cout << "suff   " << suff << endl;
+        curr = find_last_char_node(pre);
         // Pre doesn't exist in the dict
-        if (!find(pre)) {
+        if (curr == nullptr) {
             return result;
         } else {
             curr = find_last_char_node(pre);
+            // cout << "curr----" << curr->data << endl;
             backtrack(pre, suff, curr->mChild, 0, w_vec);
             // cout << "------for---size" << w_vec.size() << endl;
             // for (int j = 0; j < w_vec.size(); j++) {
