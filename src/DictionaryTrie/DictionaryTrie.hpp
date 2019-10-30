@@ -61,7 +61,9 @@ class TSTNode {
     TSTNode* mChild;
     char data;
     bool isEnd;
-    int fq;
+    unsigned int fq;
+    // The max freq of it's children node
+    unsigned int max;
 
     TSTNode(char d, int q) {
         lChild = nullptr;
@@ -70,15 +72,7 @@ class TSTNode {
         data = d;
         isEnd = false;
         fq = q;
-    }
-
-    TSTNode(char d) {
-        lChild = nullptr;
-        rChild = nullptr;
-        mChild = nullptr;
-        data = d;
-        isEnd = false;
-        fq = 0;
+        max = q;
     }
 };
 

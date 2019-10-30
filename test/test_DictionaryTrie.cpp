@@ -97,6 +97,30 @@ TEST_F(DictTest, PREDICT_TEST_4) {
     }
 }
 
+TEST_F(DictTest, PREDICT_TEST_5) {
+    // assert that the size of vectors are equal
+    // expect that the element of vectors are the same
+    string prefix = "c";
+    vector<string> v1 = dict.predictCompletions(prefix, 1);
+    vector<string> v2{"cse"};
+    ASSERT_EQ((unsigned)v1.size(), (unsigned)v2.size());
+    for (unsigned int i = 0; i < v1.size(); i++) {
+        EXPECT_EQ(v1[i], v2[i]);
+    }
+}
+
+TEST_F(DictTest, PREDICT_TEST_6) {
+    // assert that the size of vectors are equal
+    // expect that the element of vectors are the same
+    string prefix = "a";
+    vector<string> v1 = dict.predictCompletions(prefix, 2);
+    vector<string> v2{"and", "ant"};
+    ASSERT_EQ((unsigned)v1.size(), (unsigned)v2.size());
+    for (unsigned int i = 0; i < v1.size(); i++) {
+        EXPECT_EQ(v1[i], v2[i]);
+    }
+}
+
 TEST_F(DictTest, WILDCARD_TEST) {
     // assert that the size of vectors are equal
     // expect that the element of vectors are the same

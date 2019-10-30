@@ -2,15 +2,14 @@
  * File Header
  *
  * Author: Qing Niu, the implementino of the header file DictionaryTrie.hpp
- * predictCompletions enlightened by Xavier, in the CSE100 disscussion session
+ * predictCompletions enlightened by Xavier, which stores the max frequency of
+ * all of the subtree node in the CSE100 disscussion session
  * Part of the algorithm come from the slides of disscussion 5.
  */
 #include "DictionaryTrie.hpp"
 #include <algorithm>
 #include <iostream>
 
-// Helper methods
-void predictHelper(TSTNode* root, string prefix, my_pri_queue& r_que, int num);
 // Maintain a priority queue of size numCompletions
 void my_queue_push(Word word, my_pri_queue& r_que, int num);
 // Convert the result form the queue to a vector
@@ -18,6 +17,9 @@ vector<string> convert_queue_to_vector(my_pri_queue& r_que, int num);
 // Backtracking help function
 void backtrack(string pre, string suff, TSTNode* curr, unsigned pos,
                vector<Word>& results);
+// Return the second max num in tree
+int find_next_max(TSTNode* curr, int dire);
+
 // Traverse method for debug
 // void traverse(TSTNode* root);
 
@@ -35,66 +37,81 @@ bool DictionaryTrie::insert(string word, unsigned int freq) {
     TSTNode* node = nullptr;
     // if root is null
     if (root == nullptr) {
-        root = new TSTNode(word[0]);
+        root = new TSTNode(word[0], freq);
         TSTNode* curr = root;
         for (unsigned int i = 1; i < word.size(); i++) {
-            node = new TSTNode(word[i]);
+            node = new TSTNode(word[i], freq);
             curr->mChild = node;
             curr = node;
         }
         // the end node
         curr->isEnd = true;
-        curr->fq = freq;
         return true;
     } else {
         TSTNode* curr = root;
         unsigned int i = 0;
         while (true) {
             if (word[i] < curr->data) {
+                if (curr->max < freq) {
+                    curr->max = freq;
+                }
                 if (curr->lChild == nullptr) {
-                    curr->lChild = new TSTNode(word[i]);
+                    curr->lChild = new TSTNode(word[i], freq);
                     curr = curr->lChild;
                     for (i = i + 1; i < word.size(); i++) {
-                        curr->mChild = new TSTNode(word[i]);
+                        curr->mChild = new TSTNode(word[i], freq);
                         curr = curr->mChild;
                     }
                     curr->isEnd = true;
-                    curr->fq = freq;
+                    // curr->fq = freq;
+                    // curr->max = freq;
                     return true;
                 } else {
+                    // curr->max = (curr->max < freq) ? freq : curr->max;
                     curr = curr->lChild;
                 }
             } else if (word[i] > curr->data) {
+                if (curr->max < freq) {
+                    curr->max = freq;
+                }
                 if (curr->rChild == nullptr) {
-                    curr->rChild = new TSTNode(word[i]);
+                    curr->rChild = new TSTNode(word[i], freq);
                     curr = curr->rChild;
 
                     for (i = i + 1; i < word.size(); i++) {
-                        curr->mChild = new TSTNode(word[i]);
+                        curr->mChild = new TSTNode(word[i], freq);
                         curr = curr->mChild;
                     }
                     curr->isEnd = true;
-                    curr->fq = freq;
+                    // curr->fq = freq;
+                    // curr->max = freq;
                     return true;
                 } else {
+                    // curr->max = (curr->max < freq) ? freq : curr->max;
                     curr = curr->rChild;
                 }
             } else {
+                if (curr->max < freq) {
+                    curr->max = freq;
+                }
                 if (i == word.size() - 1) {
                     curr->isEnd = true;
                     curr->fq = freq;
+                    // curr->max = freq;
                     return true;
                 } else {
                     if (curr->mChild != nullptr) {
+                        curr->max = (curr->max < freq) ? freq : curr->max;
                         curr = curr->mChild;
                         i++;
                     } else {
                         for (i = i + 1; i < word.size(); i++) {
-                            curr->mChild = new TSTNode(word[i]);
+                            curr->mChild = new TSTNode(word[i], freq);
                             curr = curr->mChild;
                         }
                         curr->isEnd = true;
-                        curr->fq = freq;
+                        // curr->fq = freq;
+                        // curr->max = freq;
                         return true;
                     }
                 }
@@ -157,6 +174,7 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
         }
         return rt_vec;
     }
+    unsigned max = curr->max;
     predictHelper(curr, prefix, asd_que, numCompletions);
     // Get all the first n words in the queue
     rt_vec = convert_queue_to_vector(asd_que, numCompletions);
@@ -250,21 +268,59 @@ void DictionaryTrie::deleteAll(TSTNode* n) {
  */
 void DictionaryTrie::predictHelper(TSTNode* root, string prefix,
                                    my_pri_queue& r_que, int num) {
+    // root is null
     if (root == nullptr) {
         return;
     }
-    if (root->isEnd) {
-        string str = prefix + root->data;
-        my_queue_push(Word(str, root->fq), r_que, num);
-    }
-    if (root->lChild != nullptr) {
-        predictHelper(root->lChild, prefix, r_que, num);
-    }
-    if (root->mChild != nullptr) {
-        predictHelper(root->mChild, (prefix + root->data), r_que, num);
-    }
-    if (root->rChild != nullptr) {
-        predictHelper(root->rChild, prefix, r_que, num);
+    // Pri queue is not full
+    if (r_que.size() < num) {
+        if (root->isEnd) {
+            string str = prefix + root->data;
+            my_queue_push(Word(str, root->fq), r_que, num);
+        }
+        if (root->lChild != nullptr) {
+            predictHelper(root->lChild, prefix, r_que, num);
+        }
+        if (root->mChild != nullptr) {
+            predictHelper(root->mChild, (prefix + root->data), r_que, num);
+        }
+        if (root->rChild != nullptr) {
+            predictHelper(root->rChild, prefix, r_que, num);
+        }
+    } else {
+        // Queue is full
+        // cout << "size -----" << r_que.size() << endl;
+        if (root->isEnd) {
+            string str = prefix + root->data;
+            my_queue_push(Word(str, root->fq), r_que, num);
+            // cout << "str---" << str << endl;
+        }
+        if (root->lChild != nullptr) {
+            // cout << "node--" << root->lChild->data << "--max---"
+            //      << root->lChild->max << endl;
+            // cout << "l fq---" << r_que.top().fq << endl;
+            if (r_que.top().fq <= root->lChild->max) {
+                predictHelper(root->lChild, prefix, r_que, num);
+            }
+        }
+        if (root->mChild != nullptr) {
+            // cout << "root->m->max---" << root->mChild->max << endl;
+            // cout << "node--" << root->mChild->data << "--max---"
+            //      << root->mChild->max << endl;
+            // cout << "m fq---" << r_que.top().fq << endl;
+            if (r_que.top().fq <= root->mChild->max) {
+                predictHelper(root->mChild, (prefix + root->data), r_que, num);
+            }
+        }
+        if (root->rChild != nullptr) {
+            // cout << "root->r->max---" << root->rChild->max << endl;
+            // cout << "node--" << root->rChild->data << "--max---"
+            //      << root->rChild->max << endl;
+            // cout << "r fq---" << r_que.top().fq << endl;
+            if (r_que.top().fq <= root->rChild->max) {
+                predictHelper(root->rChild, prefix, r_que, num);
+            }
+        }
     }
 }
 
