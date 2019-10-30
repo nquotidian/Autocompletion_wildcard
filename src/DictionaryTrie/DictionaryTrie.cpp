@@ -13,7 +13,9 @@ void predictHelper(TSTNode* root, string prefix, my_pri_queue& r_que, int num);
 void my_queue_push(Word word, my_pri_queue& r_que, int num);
 // Convert the result form the queue to a vector
 vector<string> convert_queue_to_vector(my_pri_queue& r_que, int num);
-
+// Backtracking help function
+void backtrack(string pre, string suff, TSTNode* curr, int pos,
+               vector<Word>& results);
 // Traverse method for debug
 // void traverse(TSTNode* root);
 
@@ -162,9 +164,49 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
 /* TODO */
 std::vector<string> DictionaryTrie::predictUnderscores(
     string pattern, unsigned int numCompletions) {
-    return {};
+    vector<string> result;
+    vector<Word> w_vec;
+    // Find the pre-underscore part
+    TSTNode* curr = nullptr;
+    string pre, suff;
+    char un_s = '_';
+    // Whether the pattern starts with "_"
+    if (pattern.front() == un_s) {
+        // front is the underscore
+        curr = root;
+        backtrack("", pattern, curr, 0, w_vec);
+        // cout << "------for---size" << w_vec.size() << endl;
+        // for (int j = 0; j < w_vec.size(); j++) {
+        //     cout << "---" << j << "---" << w_vec[j].word << "--" <<
+        //     w_vec[j].fq
+        //          << endl;
+        // }
+    } else {
+        pre = pattern.substr(0, pattern.find("_"));
+        suff = pattern.substr(pattern.find("_"));
+        // cout << "pre   " << pre << endl;
+        // cout << "suff   " << suff << endl;
+        // Pre doesn't exist in the dict
+        if (!find(pre)) {
+            return result;
+        } else {
+            curr = find_last_char_node(pre);
+            backtrack(pre, suff, curr->mChild, 0, w_vec);
+            // cout << "------for---size" << w_vec.size() << endl;
+            // for (int j = 0; j < w_vec.size(); j++) {
+            //     cout << "---" << j << "---" << w_vec[j].word << "--"
+            //          << w_vec[j].fq << endl;
+            // }
+        }
+    }
+    std::sort(w_vec.begin(), w_vec.end(), compareObj);
+    int n = ((w_vec.size() < numCompletions) ? w_vec.size() : numCompletions);
+    // cout << "----size------" << n << endl;
+    for (int j = 0; j < n; j++) {
+        result.push_back(w_vec[j].word);
+    }
+    return result;
 }
-
 /* Find the last char node of prefix or word */
 TSTNode* DictionaryTrie::find_last_char_node(string prefix) const {
     TSTNode* curr = root;
@@ -247,7 +289,8 @@ void my_queue_push(Word word, my_pri_queue& r_que, int num) {
     } else if (!r_que.empty()) {
         if (word.fq > r_que.top().fq ||
             (word.fq == r_que.top().fq && word.word < r_que.top().word)) {
-            // The queue is full, kick out the top one with smallest priority
+            // The queue is full, kick out the top one with smallest
+            // priority
             r_que.pop();
             r_que.push(word);
         }
@@ -281,6 +324,56 @@ vector<string> convert_queue_to_vector(my_pri_queue& r_que, int num) {
         }
     }
     return vec;
+}
+
+void backtrack(string pre, string suff, TSTNode* curr, int pos,
+               vector<Word>& results) {
+    // First got the last node of the prefix node
+    // then recursively push all of the nodes
+    // if the last node of the
+    if (curr == nullptr) {
+        return;
+    }
+    // Deal with the underscore
+    if (pos == suff.size() - 1) {
+        // The end node is valid
+        if (curr->isEnd && (suff[pos] == curr->data || suff[pos] == '_')) {
+            string str = pre + curr->data;
+            results.push_back(Word(str, curr->fq));
+        }
+        // To right
+        if (curr->rChild != nullptr) {
+            backtrack(pre, suff, curr->rChild, pos, results);
+        }
+        // To left
+        if (curr->lChild != nullptr) {
+            backtrack(pre, suff, curr->lChild, pos, results);
+        }
+    } else {
+        if (suff[pos] == '_') {
+            if (curr->mChild != nullptr) {
+                backtrack(pre + curr->data, suff, curr->mChild, pos + 1,
+                          results);
+            }
+            if (curr->lChild != nullptr) {
+                backtrack(pre, suff, curr->lChild, pos, results);
+            }
+            if (curr->rChild != nullptr) {
+                backtrack(pre, suff, curr->rChild, pos, results);
+            }
+        } else if (suff[pos] == curr->data) {
+            if (curr->mChild != nullptr)
+                backtrack(pre + curr->data, suff, curr->mChild, pos + 1,
+                          results);
+        } else if (suff[pos] != curr->data) {
+            if (curr->lChild != nullptr) {
+                backtrack(pre, suff, curr->lChild, pos, results);
+            }
+            if (curr->rChild != nullptr) {
+                backtrack(pre, suff, curr->rChild, pos, results);
+            }
+        }
+    }
 }
 
 /** For test
