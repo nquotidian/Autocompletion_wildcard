@@ -17,9 +17,6 @@ vector<string> convert_queue_to_vector(my_pri_queue& r_que, int num);
 // Backtracking help function
 void backtrack(string pre, string suff, TSTNode* curr, unsigned pos,
                vector<Word>& results);
-// Return the second max num in tree
-int find_next_max(TSTNode* curr, int dire);
-
 // Traverse method for debug
 // void traverse(TSTNode* root);
 
@@ -63,11 +60,8 @@ bool DictionaryTrie::insert(string word, unsigned int freq) {
                         curr = curr->mChild;
                     }
                     curr->isEnd = true;
-                    // curr->fq = freq;
-                    // curr->max = freq;
                     return true;
                 } else {
-                    // curr->max = (curr->max < freq) ? freq : curr->max;
                     curr = curr->lChild;
                 }
             } else if (word[i] > curr->data) {
@@ -299,8 +293,10 @@ void DictionaryTrie::predictHelper(TSTNode* root, string prefix,
             // cout << "node--" << root->lChild->data << "--max---"
             //      << root->lChild->max << endl;
             // cout << "l fq---" << r_que.top().fq << endl;
-            if (r_que.top().fq <= root->lChild->max) {
-                predictHelper(root->lChild, prefix, r_que, num);
+            if (!r_que.empty()) {
+                if (r_que.top().fq <= root->lChild->max) {
+                    predictHelper(root->lChild, prefix, r_que, num);
+                }
             }
         }
         if (root->mChild != nullptr) {
@@ -308,8 +304,11 @@ void DictionaryTrie::predictHelper(TSTNode* root, string prefix,
             // cout << "node--" << root->mChild->data << "--max---"
             //      << root->mChild->max << endl;
             // cout << "m fq---" << r_que.top().fq << endl;
-            if (r_que.top().fq <= root->mChild->max) {
-                predictHelper(root->mChild, (prefix + root->data), r_que, num);
+            if (!r_que.empty()) {
+                if (r_que.top().fq <= root->mChild->max) {
+                    predictHelper(root->mChild, (prefix + root->data), r_que,
+                                  num);
+                }
             }
         }
         if (root->rChild != nullptr) {
@@ -317,8 +316,10 @@ void DictionaryTrie::predictHelper(TSTNode* root, string prefix,
             // cout << "node--" << root->rChild->data << "--max---"
             //      << root->rChild->max << endl;
             // cout << "r fq---" << r_que.top().fq << endl;
-            if (r_que.top().fq <= root->rChild->max) {
-                predictHelper(root->rChild, prefix, r_que, num);
+            if (!r_que.empty()) {
+                if (r_que.top().fq <= root->rChild->max) {
+                    predictHelper(root->rChild, prefix, r_que, num);
+                }
             }
         }
     }
