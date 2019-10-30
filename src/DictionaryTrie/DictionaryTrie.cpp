@@ -175,35 +175,20 @@ std::vector<string> DictionaryTrie::predictUnderscores(
         // front is the underscore
         curr = root;
         backtrack("", pattern, curr, 0, w_vec);
-        // cout << "------for---size" << w_vec.size() << endl;
-        // for (int j = 0; j < w_vec.size(); j++) {
-        //     cout << "---" << j << "---" << w_vec[j].word << "--" <<
-        //     w_vec[j].fq
-        //          << endl;
-        // }
     } else {
         pre = pattern.substr(0, pattern.find("_"));
         suff = pattern.substr(pattern.find("_"));
-        // cout << "pre   " << pre << endl;
-        // cout << "suff   " << suff << endl;
         curr = find_last_char_node(pre);
         // Pre doesn't exist in the dict
         if (curr == nullptr) {
             return result;
         } else {
             curr = find_last_char_node(pre);
-            // cout << "curr----" << curr->data << endl;
             backtrack(pre, suff, curr->mChild, 0, w_vec);
-            // cout << "------for---size" << w_vec.size() << endl;
-            // for (int j = 0; j < w_vec.size(); j++) {
-            //     cout << "---" << j << "---" << w_vec[j].word << "--"
-            //          << w_vec[j].fq << endl;
-            // }
         }
     }
     std::sort(w_vec.begin(), w_vec.end(), compareObj);
     int n = ((w_vec.size() < numCompletions) ? w_vec.size() : numCompletions);
-    // cout << "----size------" << n << endl;
     for (int j = 0; j < n; j++) {
         result.push_back(w_vec[j].word);
     }
