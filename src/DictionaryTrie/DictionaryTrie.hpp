@@ -94,6 +94,13 @@ class DictionaryTrie {
     /* Helper method for ~DictionaryTrie() */
     void deleteAll(TSTNode* n);
 
+    /* Find last node of the prefix */
+    TSTNode* find_last_char_node(string prefix) const;
+
+    /* Helper function of autocompletion */
+    void predictHelper(TSTNode* root, string prefix, my_pri_queue& r_que,
+                       int num);
+
   public:
     /* Constructor */
     DictionaryTrie();
@@ -111,8 +118,6 @@ class DictionaryTrie {
     /* TODO: add function header */
     vector<string> predictUnderscores(string pattern,
                                       unsigned int numCompletions);
-    /* Find */
-    TSTNode* find_last_char_node(string prefix) const;
 
     /* Destructor */
     ~DictionaryTrie();

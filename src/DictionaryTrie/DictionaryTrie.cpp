@@ -2,6 +2,8 @@
  * File Header
  *
  * Author: Qing Niu, the implementino of the header file DictionaryTrie.hpp
+ * predictCompletions enlightened by Xavier, in the CSE100 disscussion session
+ * Part of the algorithm come from the slides of disscussion 5.
  */
 #include "DictionaryTrie.hpp"
 #include <algorithm>
@@ -14,7 +16,7 @@ void my_queue_push(Word word, my_pri_queue& r_que, int num);
 // Convert the result form the queue to a vector
 vector<string> convert_queue_to_vector(my_pri_queue& r_que, int num);
 // Backtracking help function
-void backtrack(string pre, string suff, TSTNode* curr, int pos,
+void backtrack(string pre, string suff, TSTNode* curr, unsigned pos,
                vector<Word>& results);
 // Traverse method for debug
 // void traverse(TSTNode* root);
@@ -161,7 +163,7 @@ vector<string> DictionaryTrie::predictCompletions(string prefix,
     return rt_vec;
 }
 
-/* TODO */
+/* Predict the underscore words */
 std::vector<string> DictionaryTrie::predictUnderscores(
     string pattern, unsigned int numCompletions) {
     vector<string> result;
@@ -246,7 +248,8 @@ void DictionaryTrie::deleteAll(TSTNode* n) {
  *            vec - the vector to return
  *            prefix - the prefix of the word
  */
-void predictHelper(TSTNode* root, string prefix, my_pri_queue& r_que, int num) {
+void DictionaryTrie::predictHelper(TSTNode* root, string prefix,
+                                   my_pri_queue& r_que, int num) {
     if (root == nullptr) {
         return;
     }
@@ -313,7 +316,13 @@ vector<string> convert_queue_to_vector(my_pri_queue& r_que, int num) {
     return vec;
 }
 
-void backtrack(string pre, string suff, TSTNode* curr, int pos,
+/* Help function for predictUnderscore
+ * Parameter: pre - prefix before first '_'
+ *            suff - suffix after first '_'
+ *            pos - current position of suffix
+ *            results - to store results
+ * */
+void backtrack(string pre, string suff, TSTNode* curr, unsigned pos,
                vector<Word>& results) {
     // First got the last node of the prefix node
     // then recursively push all of the nodes
